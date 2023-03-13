@@ -3,7 +3,7 @@
 """
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Any
 
 from ..repository.abstract_repository import AbstractRepository
 
@@ -15,12 +15,11 @@ class Category:
     родителя (категория, подкатегорией которой является данная) в атрибуте parent.
     У категорий верхнего уровня parent = None
     """
-    name: str
+    name: str = 'Empty'
     parent: int | None = None
     pk: int = 0
 
-    def get_parent(self,
-                   repo: AbstractRepository['Category']) -> 'Category | None':
+    def get_parent(self, repo: AbstractRepository['Category']) -> 'Category | None':
         """
         Получить родительскую категорию в виде объекта Category
         Если метод вызван у категории верхнего уровня, возвращает None
@@ -41,7 +40,7 @@ class Category:
                         repo: AbstractRepository['Category']
                         ) -> Iterator['Category']:
         """
-        Получить все категории верхнего уровня в иерархии.
+        Получение всех категорий верхнего уровня в иерархии.
 
         Parameters
         ----------
@@ -61,8 +60,8 @@ class Category:
                           repo: AbstractRepository['Category']
                           ) -> Iterator['Category']:
         """
-        Получить все подкатегории из иерархии, т.е. непосредственные
-        подкатегории данной, все их подкатегории и т.д.
+        Получение всех подкатегорий из иерархии, т.е. непосредственных
+        подкатегорий данной, всех их подкатегорий и т.д.
 
         Parameters
         ----------
@@ -91,7 +90,7 @@ class Category:
             tree: list[tuple[str, str | None]],
             repo: AbstractRepository['Category']) -> list['Category']:
         """
-        Создать дерево категорий из списка пар "потомок-родитель".
+        Создание дерева категорий из списка пар "потомок-родитель".
         Список должен быть топологически отсортирован, т.е. потомки
         не должны встречаться раньше своего родителя.
         Проверка корректности исходных данных не производится.
@@ -116,3 +115,14 @@ class Category:
             repo.add(cat)
             created[child] = cat
         return list(created.values())
+
+    def __str__(self) -> str:
+        return f'pk = {self.pk}; name = {self.name}; parent = {self.parent};'
+    def __eq__(self, check: Any) -> bool:
+        if not isinstance(check, Category):
+            return NotImplemented
+        else:
+            FTans = ((self.pk == check.pk) and
+                     (self.name == check.name) and
+                     (self.parent == check.parent))
+            return FTans
